@@ -24,9 +24,8 @@ public class Graph extends JPanel {
     private static List<Pair<Double, Double>> pnt = Source.getData();
     private static List<Double> scores = new ArrayList<>();
 
-
-    private Graph(List<Double> scores) {
-        Graph.scores = scores;
+    private Graph(List<Pair<Double, Double>> pnt) {
+        Graph.pnt = pnt;
     }
 
     @Override
@@ -38,6 +37,7 @@ public class Graph extends JPanel {
         for (int i = 0; i < pnt.size(); i++) {
             xpnt.add(pnt.get(i).getKey());
             ypnt.add(pnt.get(i).getValue());
+           // System.out.println(xpnt.get(i) + " y: " + ypnt.get(i));
         }
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -50,6 +50,8 @@ public class Graph extends JPanel {
         for (int i = 0; i < pnt.size(); i++) {
             int x1 = (int) ((Collections.max(xpnt) - xpnt.get(i)) * xScale + padding + labelPadding);
             int y1 = (int) ((Collections.max(ypnt) - ypnt.get(i)) * yScale + padding);
+            //System.out.println(Collections.max(xpnt));
+            //System.out.println(Collections.min(xpnt));
             graphPoints.add(new Point(x1, y1));
         }
 
@@ -78,22 +80,36 @@ public class Graph extends JPanel {
         }
 
         // and for x axis
-        for (int i = 0; i < pnt.size(); i++) {
+        for (int i = 0; i < numberYDivisions + 1; i++) {
             if (pnt.size() > 1) {
-                int x0 = i * (getWidth() - padding * 2 - labelPadding) / (pnt.size() - 1) + padding + labelPadding;
+                int x0 = padding + labelPadding + ((i * (getWidth() - padding * 2 - labelPadding)) / numberYDivisions + padding + labelPadding);
                 int y0 = getHeight() - padding - labelPadding;
                 int y1 = y0 - pointWidth;
-                if ((i % ((int) ((pnt.size() / 20.0)) + 1)) == 0) {
+                //if ((i % ((int) ((pnt.size() / 10.0)) + 1)) == 0) {
                     g2.setColor(gridColor);
-                    g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x0, padding);
-                    g2.setColor(Color.BLACK);
+                    g2.drawLine(x0, getHeight() - padding - labelPadding , x0, padding);
+                g2.setColor(Color.BLACK);
+                    FontMetrics metrics = g2.getFontMetrics();
+                    String xLabel = ((int) ((Collections.min(xpnt) + (Collections.max(xpnt) - Collections.min(xpnt)) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
+                    int labelWidth = metrics.stringWidth(xLabel);
+                  //  String xLabel = String.format("%.2f", ) + "";
+                    g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
                    /* String xLabel = String.format("%.2f", Source.getTime() * i / pnt.size()) + "";
                     FontMetrics metrics = g2.getFontMetrics();
                     int labelWidth = metrics.stringWidth(xLabel);
                     if (i != 0)
                         g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);*/
-                }
-                g2.drawLine(x0, y0, x0, y1);
+            //    }
+                /*int numberXDivisions = 10;
+                g2.setColor(Color.BLACK);
+                for (int j = 0; j < numberYDivisions + 1; j++) {
+                    FontMetrics metrics = g2.getFontMetrics();
+                    String xLabel = ((int) ((Collections.min(xpnt) + (Collections.max(xpnt) - Collections.min(xpnt)) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
+                    int labelWidth = metrics.stringWidth(xLabel);
+                    //  String xLabel = String.format("%.2f", ) + "";
+                    g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
+                }*/
+               // g2.drawLine(x0, y0, x0, y1);
             }
         }
 
@@ -121,16 +137,8 @@ public class Graph extends JPanel {
         }
     }
 
-    private double getMinScore() {
-        return Collections.min(scores);
-    }
-
-    private double getMaxScore() {
-        return Collections.max(scores);
-    }
-
     private static void createAndShowGui() {
-        Graph mainPanel = new Graph(scores);
+        Graph mainPanel = new Graph(pnt);
         mainPanel.setPreferredSize(new Dimension(800, 600));
         JFrame frame = new JFrame("DrawGraph");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
